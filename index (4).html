@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Studio Nodal — AI-Powered Brand Films & Launch Videos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Syne:wght@500;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent: #c8a96e;
+      --text: #f0ece4;
+      --muted: rgba(240,236,228,0.5);
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: #080808;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* VIDEO BACKGROUND */
+    .video-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .video-wrapper {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 100vw;
+      height: 56.25vw;
+      min-height: 100vh;
+      min-width: 177.78vh;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 1.4s ease;
+    }
+
+    .video-wrapper iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      pointer-events: none;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(
+        160deg,
+        rgba(8,8,8,0.6) 0%,
+        rgba(8,8,8,0.3) 50%,
+        rgba(8,8,8,0.7) 100%
+      );
+      pointer-events: none;
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0.3;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulance type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+    }
+
+    /* CONTENT */
+    .content {
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 36px 48px;
+      pointer-events: none;
+    }
+
+    .content > * {
+      pointer-events: auto;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeDown 0.8s ease 0.3s both;
+    }
+
+    .logo {
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+    .logo span { color: var(--accent); }
+
+    .nav-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* HERO */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      animation: fadeUp 0.9s ease 0.5s both;
+      max-width: 90%;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(42px, 9vw, 124px);
+      font-weight: 300;
+      line-height: 0.92;
+      letter-spacing: -0.01em;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-family: 'DM Mono', monospace;
+      font-size: clamp(10px, 2vw, 11px);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 400px;
+    }
+
+    /* Watch Now button */
+    .watch-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: opacity 0.2s;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+    .watch-btn:hover { 
+      opacity: 0.7;
+    }
+
+    .watch-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* BOTTOM */
+    .bottom {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      animation: fadeUp 0.9s ease 0.7s both;
+      gap: 20px;
+    }
+
+    .bottom-left {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .dots {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .dot {
+      height: 2px;
+      width: 22px;
+      background: rgba(255,255,255,0.22);
+      cursor: pointer;
+      transition: background 0.35s ease, width 0.35s ease;
+    }
+
+    .dot.active {
+      background: var(--accent);
+      width: 42px;
+    }
+
+    .email-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      transition: color 0.2s;
+      padding-bottom: 2px;
+      border-bottom: 1px solid transparent;
+    }
+    .email-link:hover {
+      color: var(--text);
+      border-bottom-color: var(--accent);
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: var(--accent);
+      color: #080808;
+      text-decoration: none;
+      padding: 22px 48px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      transition: transform 0.2s, opacity 0.2s;
+      white-space: nowrap;
+    }
+    .cta:hover { 
+      opacity: 0.88;
+      transform: translateY(-2px);
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* MOBILE */
+    @media (max-width: 768px) {
+      html, body {
+        overflow-y: auto;
+        overflow-x: hidden;
+        height: auto;
+      }
+
+      /* Video fixed at top of viewport */
+      .video-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50vh;
+        height: 50dvh;
+      }
+
+      .video-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        min-width: unset;
+        min-height: unset;
+        transform: none;
+      }
+
+      .video-wrapper iframe {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      /* Overlay only on video section */
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50vh;
+        height: 50dvh;
+        background: linear-gradient(
+          180deg,
+          rgba(8,8,8,0.3) 0%,
+          rgba(8,8,8,0.5) 60%,
+          rgba(8,8,8,0.95) 100%
+        );
+      }
+
+      .grain {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50vh;
+        height: 50dvh;
+      }
+
+      /* Content becomes scrollable below video */
+      .content {
+        position: relative;
+        min-height: 100vh;
+        min-height: 100dvh;
+        padding: 0;
+        display: block;
+      }
+
+      /* Nav sits on top of video */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        padding: 20px 24px;
+        background: linear-gradient(to bottom, rgba(8,8,8,0.8), transparent);
+      }
+
+      .nav-tag {
+        display: none;
+      }
+
+      /* Hero content below video */
+      .hero {
+        margin-top: 50vh;
+        margin-top: 50dvh;
+        padding: 32px 24px;
+        background: #080808;
+        max-width: 100%;
+        position: relative;
+        z-index: 4;
+      }
+
+      .hero-title { 
+        font-size: clamp(36px, 11vw, 64px);
+        line-height: 1;
+      }
+
+      .hero-sub {
+        font-size: 10px;
+        max-width: 100%;
+      }
+
+      .watch-btn {
+        font-size: 10px;
+      }
+
+      /* Bottom section below hero */
+      .bottom {
+        position: relative;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+        padding: 0 24px 40px;
+        background: #080808;
+      }
+
+      .cta {
+        width: 100%;
+        padding: 20px 32px;
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-title {
+        font-size: clamp(32px, 11vw, 56px);
+      }
+
+      .logo {
+        font-size: 12px;
+      }
+
+      .email-link {
+        font-size: 10px;
+      }
+
+      nav {
+        padding: 16px 20px;
+      }
+
+      .hero {
+        padding: 28px 20px;
+      }
+
+      .bottom {
+        padding: 0 20px 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="video-bg" id="videoBg"></div>
+  <div class="overlay"></div>
+  <div class="grain"></div>
+
+  <div class="content">
+    <nav>
+      <div class="logo">Studio<span>Nodal</span></div>
+      <div class="nav-tag">AI-Powered Film Studio</div>
+    </nav>
+
+    <div class="hero">
+      <h1 class="hero-title">
+        Films that<br><em>move</em> brands<br>forward.
+      </h1>
+      <p class="hero-sub">AI-powered brand films &amp; launch videos.</p>
+      <a href="#" class="watch-btn" id="watchBtn">
+        <svg viewBox="0 0 16 16" fill="none">
+          <path d="M4 2L14 8L4 14V2Z" fill="currentColor"/>
+        </svg>
+        Watch Now
+      </a>
+    </div>
+
+    <div class="bottom">
+      <div class="bottom-left">
+        <div class="dots" id="dots"></div>
+        <a href="mailto:punit.palial@gmail.com" class="email-link">punit.palial@gmail.com</a>
+      </div>
+      <a href="https://calendly.com/punitpalial" target="_blank" class="cta">Let's Talk →</a>
+    </div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    const VIDEO_IDS = [
+      'm87bdxjN7ac',
+      'lCZMhxo1_lw',
+      'ZGgFZnIPWWs',
+      'AKxPp9ARGyY',
+      'HSOTcnkNn5I'
+    ];
+
+    const DURATION = 14000;
+    let players = [];
+    let wrappers = [];
+    let current = 0;
+    let timer = null;
+    let readyCount = 0;
+
+    const bg = document.getElementById('videoBg');
+    const dotsEl = document.getElementById('dots');
+    const watchBtn = document.getElementById('watchBtn');
+
+    // Update Watch Now button to open current video
+    watchBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const currentVideoId = VIDEO_IDS[current];
+      window.open(`https://www.youtube.com/watch?v=${currentVideoId}`, '_blank');
+    });
+
+    VIDEO_IDS.forEach((id, i) => {
+      // Create wrapper div
+      const wrapper = document.createElement('div');
+      wrapper.className = 'video-wrapper';
+      wrapper.dataset.index = i;
+      wrapper.dataset.videoId = id;
+
+      // Create player div inside wrapper
+      const playerDiv = document.createElement('div');
+      playerDiv.id = `yt-${i}`;
+      wrapper.appendChild(playerDiv);
+      bg.appendChild(wrapper);
+      wrappers.push(wrapper);
+
+      // Create dot
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        goTo(i);
+      });
+      dotsEl.appendChild(dot);
+    });
+
+    function onYouTubeIframeAPIReady() {
+      VIDEO_IDS.forEach((id, i) => {
+        const p = new YT.Player(`yt-${i}`, {
+          videoId: id,
+          playerVars: {
+            autoplay: 1,
+            mute: 1,
+            controls: 0,
+            loop: 1,
+            playlist: id,
+            playsinline: 1,
+            rel: 0,
+            modestbranding: 1,
+            iv_load_policy: 3,
+            disablekb: 1,
+            fs: 0,
+            showinfo: 0
+          },
+          events: {
+            onReady(e) {
+              e.target.mute();
+              readyCount++;
+              if (readyCount === VIDEO_IDS.length) startShow();
+            }
+          }
+        });
+        players.push(p);
+      });
+    }
+
+    function startShow() {
+      showVideo(0);
+    }
+
+    function showVideo(index) {
+      // Fade out all wrappers
+      wrappers.forEach(w => {
+        w.style.opacity = '0';
+      });
+
+      // Update dots
+      document.querySelectorAll('.dot').forEach((d, i) => {
+        d.classList.toggle('active', i === index);
+      });
+
+      // Play and fade in target
+      const target = players[index];
+      target.seekTo(0);
+      target.playVideo();
+      
+      setTimeout(() => {
+        wrappers[index].style.opacity = '1';
+      }, 80);
+
+      current = index;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        goTo((current + 1) % VIDEO_IDS.length);
+      }, DURATION);
+    }
+
+    function goTo(index) {
+      showVideo(index);
+    }
+  </script>
+
+</body>
+</html>
